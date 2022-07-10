@@ -3,25 +3,21 @@ import styles from "./app.module.css";
 import { Title } from "../../ui/title/title";
 import { Cart } from "../cart";
 import { TotalPrice } from "../common/total-price";
+import { TotalPriceContext, DiscountContext } from "../../services/appContext";
 
 function App() {
-  const [totalPrice, setTotalPrice] = React.useState(0);
-  const [discount, setDiscount] = React.useState(null);
+  const totalBillState = React.useState(0);
+  const discountState = React.useState(null);
 
-  React.useEffect(() => {
-    let total = 0;
-    setTotalPrice(total);
-  }, []);
   return (
     <div className={styles.app}>
-      <Title text={"Корзина"} />
-      <Cart
-        totalPrice={totalPrice}
-        setTotalPrice={setTotalPrice}
-        discount={discount}
-        setDiscount={setDiscount}
-      />
-      <TotalPrice totalPrice={totalPrice} discount={discount} />
+      <TotalPriceContext.Provider value={totalBillState}>
+        <DiscountContext.Provider value={discountState}>
+          <Title text={"Корзина"} />
+          <Cart />
+          <TotalPrice />
+        </DiscountContext.Provider>
+      </TotalPriceContext.Provider>
     </div>
   );
 }

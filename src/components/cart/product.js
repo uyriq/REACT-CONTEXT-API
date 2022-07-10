@@ -1,25 +1,19 @@
-import React, { useMemo } from 'react';
-import { AmountButton } from '../../ui/amount-button/amount-button';
-import { DeleteButton } from '../../ui/delete-button/delete-button';
-import styles from './product.module.css';
+import React, { useMemo, useContext } from "react";
+import { AmountButton } from "../../ui/amount-button/amount-button";
+import { DeleteButton } from "../../ui/delete-button/delete-button";
+import styles from "./product.module.css";
+import { TotalPriceContext, DiscountContext } from "../../services/appContext";
+import { DataContext } from "../../services/productsContext";
 
-export const Product = ({
-  src,
-  id,
-  text,
-  qty,
-  price,
-  discount,
-  data,
-  setData,
-  setTotalPrice,
-  totalPrice
-}) => {
-  const discountedPrice = useMemo(() => ((price - price * (discount / 100)) * qty).toFixed(0), [
-    discount,
-    price,
-    qty
-  ]);
+export const Product = ({ src, id, text, qty, price }) => {
+  const [discount] = useContext(DiscountContext);
+  const [totalPrice, setTotalPrice] = useContext(TotalPriceContext);
+  const { data, setData } = useContext(DataContext);
+
+  const discountedPrice = useMemo(
+    () => ((price - price * (discount / 100)) * qty).toFixed(0),
+    [discount, price, qty]
+  );
 
   const onDelete = () => {
     setData(data.filter(item => item.id !== id));
@@ -63,7 +57,9 @@ export const Product = ({
         <AmountButton onClick={increase}>+</AmountButton>
       </div>
       <div className={styles.price}>
-        <p className={`${styles.price} ${discount && styles.exPrice}`}>{price * qty} руб.</p>
+        <p className={`${styles.price} ${discount && styles.exPrice}`}>
+          {price * qty} руб.
+        </p>
         {discount && <p className={styles.price}>{discountedPrice} руб.</p>}
       </div>
       <DeleteButton onDelete={onDelete} />

@@ -6,7 +6,7 @@ import rec3 from "../images/rec-3.png";
 import rec4 from "../images/rec-4.png";
 
 export const getItemsRequest = async () => {
-  return await new Promise((resolve) =>
+  return await new Promise(resolve =>
     setTimeout(() => {
       resolve({
         success: true,
@@ -34,7 +34,7 @@ export const getItemsRequest = async () => {
 };
 
 export const getRecommendedItemsRequest = async () => {
-  return await new Promise((resolve) =>
+  return await new Promise(resolve =>
     setTimeout(() => {
       resolve({
         success: true,
@@ -76,7 +76,7 @@ const promoCodes = {
   PROMO100: 100
 };
 
-export const applyPromoCodeRequest = async (code) => {
+export const applyPromoCodeRequest = async code => {
   const result = { success: true };
   // ~ bitwise not operator  is doing -(N+1) так что из -1 (не найдено) => 0 ( false )
   if (~Object.keys(promoCodes).indexOf(code)) {
@@ -85,7 +85,7 @@ export const applyPromoCodeRequest = async (code) => {
     result.success = false;
     result.discount = 0;
   }
-  return await new Promise((resolve) =>
+  return await new Promise(resolve =>
     setTimeout(() => {
       resolve(result);
     }, 1500)

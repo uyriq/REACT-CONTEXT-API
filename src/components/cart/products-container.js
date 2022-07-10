@@ -3,7 +3,8 @@ import React, {
   useEffect,
   useRef,
   useMemo,
-  useState
+  useState,
+  useContext
 } from "react";
 import { getItemsRequest, applyPromoCodeRequest } from "../../services/fakeApi";
 import styles from "./products-container.module.css";
@@ -12,33 +13,31 @@ import { Input } from "../../ui/input/input";
 import { MainButton } from "../../ui/main-button/main-button";
 import { PromoButton } from "../../ui/promo-button/promo-button";
 import { Loader } from "../../ui/loader/loader";
+import { TotalPriceContext, DiscountContext } from "../../services/appContext";
+import { DataContext, PromoContext } from "../../services/productsContext";
 
-export const ProductsContainer = ({
-  setTotalPrice,
-  totalPrice,
-  setDiscount,
-  discount
-}) => {
+export const ProductsContainer = () => {
   const [promo, setPromo] = useState("");
-
   const [data, setData] = useState([]);
-
   const [itemsRequest, setItemsRequest] = useState(false);
   const [promoFailed, setPromoFailed] = useState(false);
   const [promoRequest, setPromoRequest] = useState(false);
 
   const inputRef = useRef(null);
 
+  const [totalPrice, setTotalPrice] = useContext(TotalPriceContext);
+  const [discount, setDiscount] = useContext(DiscountContext);
+
   useEffect(() => {
     setItemsRequest(true);
     getItemsRequest()
-      .then((res) => {
+      .then(res => {
         if (res && res.success) {
           setData(res.data);
           setItemsRequest(false);
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
         setItemsRequest(false);
       });
@@ -46,7 +45,7 @@ export const ProductsContainer = ({
 
   useEffect(() => {
     let total = 0;
-    data.map((item) => (total += item.price * item.qty));
+    data.map(item => (total += item.price * item.qty));
     setTotalPrice(total);
   }, [data, setTotalPrice]);
 
@@ -54,7 +53,7 @@ export const ProductsContainer = ({
     const inputValue = inputRef.current.value;
     setPromoRequest(true);
     applyPromoCodeRequest(inputValue)
-      .then((res) => {
+      .then(res => {
         if (res && res.success) {
           setPromo(inputValue);
           setDiscount(res.discount);
@@ -67,7 +66,7 @@ export const ProductsContainer = ({
           setPromo("");
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
         setPromoRequest(false);
       });
@@ -109,40 +108,38 @@ export const ProductsContainer = ({
 
   return (
     <div className={`${styles.container}`}>
-      {content}
-      <div className={styles.promo}>
-        <div className={styles.inputWithBtn}>
-          <Input
-            type="text"
-            placeholder="Введите промокод"
-            extraClass={styles.input}
-            inputWithBtn={true}
-            inputRef={inputRef}
-          />
-          <MainButton
-            type="button"
-            extraClass={styles.promo_button}
-            inputButton={true}
-            onClick={applyPromoCode}
-          >
-            {promoRequest ? (
-              <Loader size="small" inverse={true} />
-            ) : (
-              "Применить"
+      <DataContext.Provider value={{ data, setData }}>
+        <PromoContext.Provider value={{ promo, setPromo }}>
+          {content}
+          <div className={styles.promo}>
+            <div className={styles.inputWithBtn}>
+              <Input
+                type="text"
+                placeholder="Введите промокод"
+                extraClass={styles.input}
+                inputWithBtn={true}
+                inputRef={inputRef}
+              />
+              <MainButton
+                type="button"
+                extraClass={styles.promo_button}
+                inputButton={true}
+                onClick={applyPromoCode}
+              >
+                {promoRequest ? (
+                  <Loader size="small" inverse={true} />
+                ) : (
+                  "Применить"
+                )}
+              </MainButton>
+            </div>
+            {promo && (
+              <PromoButton extraClass={styles.promocode}>{promo}</PromoButton>
             )}
-          </MainButton>
-        </div>
-        {promo && (
-          <PromoButton
-            extraClass={styles.promocode}
-            setPromo={setPromo}
-            setDiscount={setDiscount}
-          >
-            {promo}
-          </PromoButton>
-        )}
-      </div>
-      {promoCodeStatus}
+          </div>
+          {promoCodeStatus}
+        </PromoContext.Provider>
+      </DataContext.Provider>
     </div>
   );
 };
